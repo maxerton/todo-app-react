@@ -4,7 +4,7 @@ import TodoList from "./components/TodoList";
 
 
 function App() {
-  const [todos, setTodos] = useState(localStorage.getItem('data') !== undefined ? JSON.parse(localStorage.getItem('data')) :[]);
+  const [todos, setTodos] = useState(localStorage.getItem('data') !== null ? JSON.parse(localStorage.getItem('data')) :[]);
 
   const getLast = () => {
     if (todos.length === 0) return 1;
@@ -42,6 +42,16 @@ function App() {
   useEffect(() => {
     localStorage.setItem('data', JSON.stringify(todos));
   }, [todos]);
+
+  useEffect(() => {
+    if (localStorage.getItem('data') === null || JSON.parse(localStorage.getItem('data')).length === 0) {
+      fetch('https://jsonplaceholder.typicode.com/posts')
+        .then((response) => response.json())
+        .then((json) => {
+          setTodos([...todos, ...json.map(el => ({id: el.id, text: el.title, completed: false}))])
+        });
+    }
+  }, []);
 
   return (
     <div className="container">
